@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -92,7 +93,7 @@
         android:textSize="18dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/notCorrectTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/incorrectTextView" />
 
     <TextView
         android:id="@+id/correctNums"
@@ -123,7 +124,7 @@
         app:layout_constraintTop_toBottomOf="@+id/totalTasksTextView" />
 
     <TextView
-        android:id="@+id/notCorrectTextView"
+        android:id="@+id/incorrectTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
