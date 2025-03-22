@@ -3,29 +3,14 @@ package com.example.dotask
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.ColorUtils
+import com.example.dotask.databinding.ActivityMainBinding
 import kotlin.random.Random
+import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var firstNumTextView: TextView
-    private lateinit var secondNumTextView: TextView
-    private lateinit var operandTextView: TextView
-    private lateinit var answerEditText: EditText
-    private lateinit var checkButton: Button
-    private lateinit var startButton: Button
-    private lateinit var correctTextView: TextView
-    private lateinit var incorrectTextView: TextView
-    private lateinit var totalTasksTextView: TextView
-    private lateinit var totalTasksNumTextView: TextView
-    private lateinit var correctNumsTextView: TextView
-    private lateinit var notCorrectNumsTextView: TextView
-    private lateinit var mainLayout: ConstraintLayout
+    private lateinit var binding: ActivityMainBinding
 
     private var correctAnswers = 0
     private var incorrectAnswers = 0
@@ -34,40 +19,27 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        firstNumTextView = findViewById(R.id.firstNum)
-        secondNumTextView = findViewById(R.id.secondNum)
-        operandTextView = findViewById(R.id.operand)
-        answerEditText = findViewById(R.id.answerTextInput)
-        checkButton = findViewById(R.id.checkButton)
-        startButton = findViewById(R.id.startButton)
-        correctTextView = findViewById(R.id.correctTextView)
-        incorrectTextView = findViewById(R.id.incorrectTextView)
-        totalTasksTextView = findViewById(R.id.totalTasksTextView)
-        totalTasksNumTextView = findViewById(R.id.totalTasksNum)
-        correctNumsTextView = findViewById(R.id.correctNums)
-        notCorrectNumsTextView = findViewById(R.id.notCorrectNums)
-        mainLayout = findViewById(R.id.mainLayout)
+        binding.checkButton.isEnabled = false
+        binding.answerTextInput.isEnabled = false
 
-        checkButton.isEnabled = false
-        answerEditText.isEnabled = false
-
-        startButton.setOnClickListener {
+        binding.startButton.setOnClickListener {
             generateExample()
-            startButton.isEnabled = false
-            checkButton.isEnabled = true
-            answerEditText.isEnabled = true
-            answerEditText.text.clear()
-            answerEditText.requestFocus()
-            mainLayout.setBackgroundColor(Color.WHITE)
+            binding.startButton.isEnabled = false
+            binding.checkButton.isEnabled = true
+            binding.answerTextInput.isEnabled = true
+            binding.answerTextInput.text.clear()
+            binding.answerTextInput.requestFocus()
+            binding.mainLayout.setBackgroundColor(Color.WHITE)
         }
 
-        checkButton.setOnClickListener {
+        binding.checkButton.setOnClickListener {
             checkAnswer()
-            startButton.isEnabled = true
-            checkButton.isEnabled = false
-            answerEditText.isEnabled = false
+            binding.startButton.isEnabled = true
+            binding.checkButton.isEnabled = false
+            binding.answerTextInput.isEnabled = false
         }
 
         updateStatistics()
@@ -83,9 +55,9 @@ class MainActivity : AppCompatActivity() {
             num2 = findDivisor(num1)
         }
 
-        firstNumTextView.text = num1.toString()
-        secondNumTextView.text = num2.toString()
-        operandTextView.text = operation
+        binding.firstNum.text = num1.toString()
+        binding.secondNum.text = num2.toString()
+        binding.operand.text = operation
 
         correctAnswer = when (operation) {
             "*" -> num1 * num2
@@ -98,34 +70,51 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAnswer() {
         totalTasks++
-        val userAnswer = answerEditText.text.toString().toIntOrNull()
+        val userAnswer = binding.answerTextInput.text.toString().toIntOrNull()
+        val lighterGreen = ColorUtils.blendARGB(Color.GREEN, Color.WHITE, 0.6f)
+        val lighterRed = ColorUtils.blendARGB(Color.RED, Color.WHITE, 0.6f)
 
-        if (userAnswer != null && userAnswer == correctAnswer) {
-            correctAnswers++
-            val lighterGreen = ColorUtils.blendARGB(Color.GREEN, Color.WHITE, 0.6f)
-            mainLayout.setBackgroundColor(lighterGreen)
+        if (userAnswer != null) {
+            if (userAnswer == correctAnswer) {
+                correctAnswers++
+                binding.mainLayout.setBackgroundColor(lighterGreen)
+
+            } else {
+                incorrectAnswers++
+                binding.mainLayout.setBackgroundColor(lighterRed)
+            }
         } else {
             incorrectAnswers++
-            val lighterRed = ColorUtils.blendARGB(Color.RED, Color.WHITE, 0.6f)
-            mainLayout.setBackgroundColor(lighterRed)
+            binding.mainLayout.setBackgroundColor(lighterRed)
         }
 
         updateStatistics()
     }
 
-    private fun updateStatistics() {
-        correctNumsTextView.text = correctAnswers.toString()
-        notCorrectNumsTextView.text = incorrectAnswers.toString()
-        totalTasksNumTextView.text = totalTasks.toString()
-    }
-
     private fun findDivisor(number: Int): Int {
         val divisors = mutableListOf<Int>()
         for (i in 1..number) {
-            if (number % i == 0 && i in 10..99) {
+            if (number % i == 0) {
                 divisors.add(i)
             }
         }
-        return divisors.randomOrNull() ?: number
+        return divisors.random()
+    }
+
+    private fun updateStatistics() {
+        binding.correctNums.text = correctAnswers.toString()
+        binding.incorrectNums.text = incorrectAnswers.toString()
+        binding.totalTasksNum.text = totalTasks.toString()
+
+        val percentage = if (totalTasks > 0) {
+            (correctAnswers.toDouble() / totalTasks.toDouble()) * 100
+        } else {
+            0.0
+        }
+
+        val df = DecimalFormat("0.00")
+        val formattedPercentage = df.format(percentage) + "%"
+
+        binding.percentTextView.text = formattedPercentage
     }
 }
